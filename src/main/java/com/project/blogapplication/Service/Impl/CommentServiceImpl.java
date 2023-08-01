@@ -94,5 +94,19 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.delete(comment);
     }
 
+    @Override
+    public List<CommentDto> searchComments(String body, Long id) {
+        Post post=postRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Post","id",id));
+        List<Comment> comment = commentRepository.findCommentsByBodyContaining(body);
+
+        if(comment.isEmpty()&&post.getId()==null){
+            throw new BlogApiException(HttpStatus.BAD_REQUEST,"Given body is not found");
+        }
+
+        return comment.stream().map(this::mapToDto).collect(Collectors.toList());
+    }
+
+
+
 
 }

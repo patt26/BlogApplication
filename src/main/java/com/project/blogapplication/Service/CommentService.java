@@ -14,4 +14,8 @@ public interface CommentService {
     CommentDto updateComment(Long postId,Long CommentId,CommentDto commentDto);
 
     void DeleteComment(Long postId,Long commentId);
+
+    List<CommentDto> searchComments(String body, Long id);
+
+    /*List<CommentDto> searchComments(String body,Long id);*/
 }

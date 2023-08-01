@@ -9,6 +9,7 @@ import com.project.blogapplication.Repository.RoleRepository;
 import com.project.blogapplication.Repository.UserRepository;
 import com.project.blogapplication.Security.JwtTokenProvider;
 import com.project.blogapplication.Service.AuthService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -64,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
 
         List<Role> roles=new ArrayList<>();
-        Role userRole=roleRepository.findByRole("ROLE_USER").get();
+        Role userRole=roleRepository.findByRole("ROLE_"+signUpDto.getRole().toUpperCase()).get();
         roles.add(userRole);
         user.setRoles(roles);
         userRepository.save(user);

@@ -2,6 +2,7 @@ package com.project.blogapplication.Controller;
 
 import com.project.blogapplication.Payload.CommentDto;
 import com.project.blogapplication.Service.CommentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/")
+@Tag(
+        name = "CRUD REST APIs for Comment section in Blog Application"
+)
 public class CommentController {
     private final CommentService commentService;
 
@@ -45,6 +49,12 @@ public class CommentController {
         commentService.DeleteComment(postId, commentId);
         return new ResponseEntity<>("Comment deleted successfully!!", HttpStatus.OK);
     }
+
+    @GetMapping("posts/{postId}/search")
+    public ResponseEntity<List<CommentDto>> searchComments(@RequestParam(value = "msg") String body,@PathVariable Long postId){
+        return new ResponseEntity<>(commentService.searchComments(body, postId),HttpStatus.FOUND);
+    }
+
 
 
 }

@@ -23,13 +23,9 @@ public class Category {
     private Long id;
 
     @Column(name = "name")
-    @NotEmpty
-    @Size(min = 3,message = "Name should be greater then 3 characters")
     private String name;
 
     @Column(name = "description")
-    @NotEmpty
-    @Size(min = 5,message = "Description should be greater than 3 characters")
     private String description;
 
     @OneToMany(mappedBy = "category",cascade = CascadeType.ALL,orphanRemoval = true)

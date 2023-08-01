@@ -2,6 +2,9 @@ package com.project.blogapplication.Config;
 
 import com.project.blogapplication.Security.JwtAuthenticationEntryPoint;
 import com.project.blogapplication.Security.JwtAuthenticationFilter;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,17 +22,28 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableMethodSecurity
+@SecurityScheme(
+        name = "Bearer Authentication",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
 public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(UserDetailsService userDetailsService, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, JwtAuthenticationFilter jwtAuthenticationFilter) {
+
+
+    public SecurityConfig(UserDetailsService userDetailsService,
+                          JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+                          JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -37,22 +51,26 @@ public class SecurityConfig {
     }
 
     @Bean
-    public static PasswordEncoder passwordEncoder(){
+    public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((authorize)->
+                .authorizeHttpRequests((authorize) ->
 //                        authorize.anyRequest().authenticated()
-                        authorize.requestMatchers(HttpMethod.GET,"/api/**").permitAll()
-                                .requestMatchers("/api/auth/**").permitAll()
-                                .anyRequest().authenticated()
-                ).exceptionHandling(exception->exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                                authorize.requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                                        .requestMatchers(HttpMethod.POST,"/api/auth/login","/api/auth/signin").permitAll()
+                                        .requestMatchers(HttpMethod.POST,"/api/auth/register","/api/auth/signup").hasRole("ADMIN")
+                                        .requestMatchers(HttpMethod.GET,"/api/categories/**").permitAll()
+                                        .requestMatchers("/swagger-ui/**").permitAll()
+                                        .requestMatchers("/v3/api-docs/**").permitAll()
+                                        .anyRequest().authenticated()
+                ).exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         httpSecurity.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return httpSecurity.build();
     }
     /*@Bean
